@@ -8,38 +8,21 @@
 <img id="nose" style="position: absolute; user-drag: none; width: 20%; height: 20%; image-rendering: pixelated;" src="./nose.png"></img>
 
 <script>
+const synth = window.speechSynthesis;
 dragElement = elem => {
     let x0 = 0;
     let y0 = 0;
     let x1 = 0;
     let y1 = 0;
 
+    let lastUtter = "Pleasant";
+    let utteranceDone = true;
+
     dragMouseDown = e => {
         e.preventDefault();
 
         if(document.getElementById('nomouse')) {
             document.getElementById('nomouse').remove();
-
-            setInterval(() => {
-                const synth = window.speechSynthesis;
-
-                const r = document.getElementById('rose').getBoundingClientRect();
-                const n = document.getElementById('nose').getBoundingClientRect();
-
-                const req = new SpeechSynthesisUtterance(
-                    (
-                        n.left < r.right - 10
-                        && r.left < n.right - 10
-                        && n.top < r.bottom - 10
-                        && r.top < n.bottom - 10
-                        )
-                        ? "Pleasant"
-                        : "Nonplussed"
-
-                );
-                req.voice = synth.getVoices()[0];
-                synth.speak(req);
-            }, 1500);
         }
 
         x1 = e.clientX;
@@ -59,6 +42,27 @@ dragElement = elem => {
 
         elem.style.top = (elem.offsetTop - y0) + "px";
         elem.style.left = (elem.offsetLeft - x0) + "px";
+
+        const r = document.getElementById('rose').getBoundingClientRect();
+        const n = document.getElementById('nose').getBoundingClientRect();
+
+        const utter = (
+                n.left < r.right
+                && r.left < n.right
+                && n.top < r.bottom
+                && r.top < n.bottom
+                )
+                ? "Pleasant"
+                : "Nonplussed";
+
+        if(utteranceDone && utter != lastUtter) {
+            utteranceDone = false;
+            lastUtter = utter;
+            const req = new SpeechSynthesisUtterance(utter);
+            req.voice = synth.getVoices()[0];
+            req.onend = () => utteranceDone = true;
+            synth.speak(req);
+        }
     }
 
     closeDragElem = () => {
