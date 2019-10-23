@@ -1,0 +1,71 @@
+<html>
+<head><title>
+    Stop and ...
+</title></head>    
+<body>
+<div id='nomouse' style='float: right; clear: none;'>Click to drag the nose!</div>
+<img id="rose" style="position: absolute; user-drag: none; top: calc(35%); left: calc(40%); width: 30%; height: 30%; image-rendering: pixelated;" src="./rose.png"></img>
+<img id="nose" style="position: absolute; user-drag: none; width: 20%; height: 20%; image-rendering: pixelated;" src="./nose.png"></img>
+
+<script>
+dragElement = elem => {
+    let x0 = 0;
+    let y0 = 0;
+    let x1 = 0;
+    let y1 = 0;
+
+    dragMouseDown = e => {
+        e.preventDefault();
+
+        if(document.getElementById('nomouse')) {
+            document.getElementById('nomouse').remove();
+        }
+
+        x1 = e.clientX;
+        y1 = e.clientY;
+
+        document.onmouseup = closeDragElem;
+        document.onmousemove = elementDrag;
+    }
+
+    elementDrag = e => {
+        e.preventDefault();
+
+        x0 = x1 - e.clientX;
+        y0 = y1 - e.clientY;
+        x1 = e.clientX;
+        y1 = e.clientY;
+
+        elem.style.top = (elem.offsetTop - y0) + "px";
+        elem.style.left = (elem.offsetLeft - x0) + "px";
+    }
+
+    closeDragElem = () => {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+    elem.onmousedown = dragMouseDown
+}
+dragElement(document.getElementById('nose'));
+
+setInterval(() => {
+    const synth = window.speechSynthesis;
+
+    const r = document.getElementById('rose').getBoundingClientRect();
+    const n = document.getElementById('nose').getBoundingClientRect();
+
+    const req = new SpeechSynthesisUtterance(
+        (
+            n.left < r.right
+            && r.left < n.right
+            && n.top < r.bottom
+            && r.top < n.bottom
+            )
+            ? "Pleasant"
+            : "Nonplussed"
+
+    );
+    req.voice = synth.getVoices()[0];
+    synth.speak(req);
+}, 1500);
+</script></body></html>
