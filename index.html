@@ -15,7 +15,6 @@ dragElement = elem => {
     let x1 = 0;
     let y1 = 0;
 
-    let lastUtter = "Pleasant";
     let utteranceDone = true;
 
     dragMouseDown = e => {
@@ -55,9 +54,8 @@ dragElement = elem => {
                 ? "Pleasant"
                 : "Nonplussed";
 
-        if(utteranceDone && utter != lastUtter) {
+        if(utteranceDone) {
             utteranceDone = false;
-            lastUtter = utter;
             const req = new SpeechSynthesisUtterance(utter);
             req.voice = synth.getVoices()[0];
             req.onend = () => utteranceDone = true;
