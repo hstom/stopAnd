@@ -28,10 +28,10 @@ dragElement = elem => {
 
                 const req = new SpeechSynthesisUtterance(
                     (
-                        n.left < r.right
-                        && r.left < n.right
-                        && n.top < r.bottom
-                        && r.top < n.bottom
+                        n.left < r.right - 10
+                        && r.left < n.right - 10
+                        && n.top < r.bottom - 10
+                        && r.top < n.bottom - 10
                         )
                         ? "Pleasant"
                         : "Nonplussed"
