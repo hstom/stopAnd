@@ -19,6 +19,27 @@ dragElement = elem => {
 
         if(document.getElementById('nomouse')) {
             document.getElementById('nomouse').remove();
+
+            setInterval(() => {
+                const synth = window.speechSynthesis;
+
+                const r = document.getElementById('rose').getBoundingClientRect();
+                const n = document.getElementById('nose').getBoundingClientRect();
+
+                const req = new SpeechSynthesisUtterance(
+                    (
+                        n.left < r.right
+                        && r.left < n.right
+                        && n.top < r.bottom
+                        && r.top < n.bottom
+                        )
+                        ? "Pleasant"
+                        : "Nonplussed"
+
+                );
+                req.voice = synth.getVoices()[0];
+                synth.speak(req);
+            }, 1500);
         }
 
         x1 = e.clientX;
@@ -47,25 +68,4 @@ dragElement = elem => {
     elem.onmousedown = dragMouseDown
 }
 dragElement(document.getElementById('nose'));
-
-setInterval(() => {
-    const synth = window.speechSynthesis;
-
-    const r = document.getElementById('rose').getBoundingClientRect();
-    const n = document.getElementById('nose').getBoundingClientRect();
-
-    const req = new SpeechSynthesisUtterance(
-        (
-            n.left < r.right
-            && r.left < n.right
-            && n.top < r.bottom
-            && r.top < n.bottom
-            )
-            ? "Pleasant"
-            : "Nonplussed"
-
-    );
-    req.voice = synth.getVoices()[0];
-    synth.speak(req);
-}, 1500);
 </script></body></html>
