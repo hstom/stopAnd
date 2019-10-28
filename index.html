@@ -10,6 +10,7 @@
 <script>
 const synth = window.speechSynthesis;
 let lastUtterance = 'Pleasant';
+let enableSpeech = false;
 dragElement = elem => {
     console.log("DRAG ELEMENT");
     let x0 = 0;
@@ -20,8 +21,6 @@ dragElement = elem => {
     let utteranceDone = true;
 
     dragMouseDown = e => {
-        // e.preventDefault();
-
         if(document.getElementById('nomouse')) {
             document.getElementById('nomouse').remove();
         }
@@ -29,14 +28,15 @@ dragElement = elem => {
         x1 = e.clientX;
         y1 = e.clientY;
 
-        document.onmouseup = closeDragElem;
-        document.onmousemove = elementDrag;
+        document.onmouseup = e => {e.preventDefault(); closeDragElem(e);};
+        document.onmousemove = e => {e.preventDefault(); elementDrag(e);};
+
+        synth.speak(new SpeechSynthesisUtterance(''));
         document.ontouchend = closeDragElem;
         document.ontouchmove = elementDrag;
     }
 
     elementDrag = e => {
-        // e.preventDefault();
         console.log('beep');
         let eT = e.touches ? e.touches[0] : e;
 
@@ -80,36 +80,30 @@ dragElement = elem => {
 
             g = document.createElementNS(xmlns, 'g');
             blinker.appendChild(g);
-            // <rect x="500" y="100" width="50" height="50" fill="#393" />
-
-            // blinkerBackground = document.createElementNS(xmlns, 'rect');
-            // blinkerBackground.setAttributeNS(null, 'width', '50');
-            // blinkerBackground.setAttributeNS(null, 'height', '50');
-
-            // blinkerBackground.setAttribute('x', '0');
-            // blinkerBackground.setAttribute('y', '0');
-
-            // blinkerBackground.setAttribute('fill', 'fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)');
-            // g.appendChild(blinkerBackground);
 
             blinkerText = document.createElementNS(xmlns, 'text');
-            // blinkerText.setAttributeNS(null, 'x', '0');
-            // blinkerText.setAttributeNS(null, 'y', '15');
             blinkerText.style.fontSize='13px';
             blinkerText.style.fontFamily='"Courier New", Courier, monospace';
             blinkerText.style.fill='#000000';
-            // blinkerText.style.stroke='#FFFFFF';
-            // blinkerText.style.strokeWidth='.25px';
 
             g.appendChild(blinkerText);
+            
             blinkerText.textContent = utter;
             document.body.appendChild(blinker);
 
+            lastUtterance = utter;
+
             req.onend = () => {
                 document.body.removeChild(blinker);
+                spoken = true;
                 utteranceDone = true;
-                };
-            lastUtterance = utter;
+            };
+            req.onerror = () => {
+                console.log('speech error');
+
+                document.body.removeChild(blinker);
+                utteranceDone = true;
+            }
             synth.speak(req);
         }
     }
@@ -117,11 +111,20 @@ dragElement = elem => {
     closeDragElem = () => {
         document.onmouseup = null;
         document.onmousemove = null;
+
         document.ontouchend = null;
         document.ontouchmove = null;
     }
-    elem.onmousedown = dragMouseDown;
-    elem.ontouchstart = dragMouseDown;
+    elem.onmousedown = e => {enableSpeech = true; dragMouseDown(e);};
+    elem.ontouchstart = e => {
+        if(!enableSpeech) {
+            e.preventDefault();
+            synth.speak(new SpeechSynthesisUtterance('STOP AND SMELL'));
+            enableSpeech = true;
+        } else {
+            dragMouseDown(e);
+        }
+    };
 }
 dragElement(document.getElementById('nose'));
 </script></body></html>
