@@ -2,15 +2,16 @@
 <head><title>
     Stop and ...
 </title></head>    
-<body style='margin: 0;'>
+<body style='margin: 0; height:100vh; width: 100vw; overflow: hidden'>
 <div id='nomouse' style='float: right; clear: none;'>Click to drag the nose! Turn on audio to enjoy!</div>
-<img id="rose" style="position: absolute; user-drag: none; top: calc(35%); left: calc(40%); width: 30%; height: 30%; image-rendering: pixelated;" src="./rose.png"></img>
-<img id="nose" style="position: absolute; user-drag: none; width: 20%; height: 20%; image-rendering: pixelated;" src="./nose.png"></img>
+<img id="rose" style="position: absolute; user-drag: none; top: calc(35%); left: calc(40%); width: 30%; height: auto; image-rendering: pixelated;" src="./rose.png"></img>
+<img id="nose" style="z-index: 2; position: absolute; user-drag: none; width: 20%; height: auto; image-rendering: pixelated;" src="./nose.png"></img>
 
 <script>
 const synth = window.speechSynthesis;
 let lastUtterance = 'Pleasant';
 dragElement = elem => {
+    console.log("DRAG ELEMENT");
     let x0 = 0;
     let y0 = 0;
     let x1 = 0;
@@ -19,7 +20,7 @@ dragElement = elem => {
     let utteranceDone = true;
 
     dragMouseDown = e => {
-        e.preventDefault();
+        // e.preventDefault();
 
         if(document.getElementById('nomouse')) {
             document.getElementById('nomouse').remove();
@@ -30,15 +31,19 @@ dragElement = elem => {
 
         document.onmouseup = closeDragElem;
         document.onmousemove = elementDrag;
+        document.ontouchend = closeDragElem;
+        document.ontouchmove = elementDrag;
     }
 
     elementDrag = e => {
-        e.preventDefault();
+        // e.preventDefault();
+        console.log('beep');
+        let eT = e.touches ? e.touches[0] : e;
 
-        x0 = x1 - e.clientX;
-        y0 = y1 - e.clientY;
-        x1 = e.clientX;
-        y1 = e.clientY;
+        x0 = x1 - eT.clientX;
+        y0 = y1 - eT.clientY;
+        x1 = eT.clientX;
+        y1 = eT.clientY;
 
         elem.style.top = (elem.offsetTop - y0) + "px";
         elem.style.left = (elem.offsetLeft - x0) + "px";
@@ -63,14 +68,14 @@ dragElement = elem => {
             const xmlns = "http://www.w3.org/2000/svg";
 
             blinker = document.createElementNS(xmlns, 'svg');
-            blinker.setAttributeNS(null, 'viewBox', `0 -35 ${utter === 'Pleasant' ? 60 : 78} 40`);
+            blinker.setAttributeNS(null, 'viewBox', `0 ${utter === 'Pleasant' ? -33 : -35} ${utter === 'Pleasant' ? 60 : 78} 40`);
             blinker.setAttributeNS(null, 'width', '100');
             blinker.setAttributeNS(null, 'height', '100');
             blinker.style.width = '100%';
             blinker.style.height = '100%';
             blinker.style.position = 'fixed';
             blinker.style.pointerEvents = 'none';
-            blinker.style.zIndex = '-1';
+            blinker.style.zIndex = '0';
             blinker.style.filter = 'drop-shadow(15px 15px 25px black)';
 
             g = document.createElementNS(xmlns, 'g');
@@ -112,8 +117,11 @@ dragElement = elem => {
     closeDragElem = () => {
         document.onmouseup = null;
         document.onmousemove = null;
+        document.ontouchend = null;
+        document.ontouchmove = null;
     }
-    elem.onmousedown = dragMouseDown
+    elem.onmousedown = dragMouseDown;
+    elem.ontouchstart = dragMouseDown;
 }
 dragElement(document.getElementById('nose'));
 </script></body></html>
