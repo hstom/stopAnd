@@ -2,13 +2,14 @@
 <head><title>
     Stop and ...
 </title></head>    
-<body>
+<body style='margin: 0;'>
 <div id='nomouse' style='float: right; clear: none;'>Click to drag the nose! Turn on audio to enjoy!</div>
 <img id="rose" style="position: absolute; user-drag: none; top: calc(35%); left: calc(40%); width: 30%; height: 30%; image-rendering: pixelated;" src="./rose.png"></img>
 <img id="nose" style="position: absolute; user-drag: none; width: 20%; height: 20%; image-rendering: pixelated;" src="./nose.png"></img>
 
 <script>
 const synth = window.speechSynthesis;
+let lastUtterance = 'Pleasant';
 dragElement = elem => {
     let x0 = 0;
     let y0 = 0;
@@ -54,11 +55,56 @@ dragElement = elem => {
                 ? "Pleasant"
                 : "Nonplussed";
 
-        if(utteranceDone) {
+        if(utteranceDone && lastUtterance !== utter) {
             utteranceDone = false;
             const req = new SpeechSynthesisUtterance(utter);
             req.voice = synth.getVoices()[0];
-            req.onend = () => utteranceDone = true;
+
+            const xmlns = "http://www.w3.org/2000/svg";
+
+            blinker = document.createElementNS(xmlns, 'svg');
+            blinker.setAttributeNS(null, 'viewBox', `0 -35 ${utter === 'Pleasant' ? 60 : 78} 40`);
+            blinker.setAttributeNS(null, 'width', '100');
+            blinker.setAttributeNS(null, 'height', '100');
+            blinker.style.width = '100%';
+            blinker.style.height = '100%';
+            blinker.style.position = 'fixed';
+            blinker.style.pointerEvents = 'none';
+            blinker.style.zIndex = '-1';
+            blinker.style.filter = 'drop-shadow(15px 15px 25px black)';
+
+            g = document.createElementNS(xmlns, 'g');
+            blinker.appendChild(g);
+            // <rect x="500" y="100" width="50" height="50" fill="#393" />
+
+            // blinkerBackground = document.createElementNS(xmlns, 'rect');
+            // blinkerBackground.setAttributeNS(null, 'width', '50');
+            // blinkerBackground.setAttributeNS(null, 'height', '50');
+
+            // blinkerBackground.setAttribute('x', '0');
+            // blinkerBackground.setAttribute('y', '0');
+
+            // blinkerBackground.setAttribute('fill', 'fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)');
+            // g.appendChild(blinkerBackground);
+
+            blinkerText = document.createElementNS(xmlns, 'text');
+            // blinkerText.setAttributeNS(null, 'x', '0');
+            // blinkerText.setAttributeNS(null, 'y', '15');
+            blinkerText.style.fontSize='13px';
+            blinkerText.style.fontFamily='"Courier New", Courier, monospace';
+            blinkerText.style.fill='#000000';
+            // blinkerText.style.stroke='#FFFFFF';
+            // blinkerText.style.strokeWidth='.25px';
+
+            g.appendChild(blinkerText);
+            blinkerText.textContent = utter;
+            document.body.appendChild(blinker);
+
+            req.onend = () => {
+                document.body.removeChild(blinker);
+                utteranceDone = true;
+                };
+            lastUtterance = utter;
             synth.speak(req);
         }
     }
