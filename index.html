@@ -28,15 +28,16 @@ dragElement = elem => {
         x1 = e.clientX;
         y1 = e.clientY;
 
-        document.onmouseup = e => {e.preventDefault(); closeDragElem(e);};
-        document.onmousemove = e => {e.preventDefault(); elementDrag(e);};
+        document.onmouseup = closeDragElem;
+        document.onmousemove = elementDrag;
 
         synth.speak(new SpeechSynthesisUtterance(''));
-        document.ontouchend = closeDragElem;
-        document.ontouchmove = elementDrag;
+        document.addEventListener('touchend', closeDragElem, {passive: false, capture: 'bubble'});
+        document.addEventListener('touchmove', elementDrag, {passive: false, capture: 'bubble'});
     }
 
     elementDrag = e => {
+        e.preventDefault();
         console.log('beep');
         let eT = e.touches ? e.touches[0] : e;
 
@@ -108,7 +109,8 @@ dragElement = elem => {
         }
     }
 
-    closeDragElem = () => {
+    closeDragElem = e => {
+        e.preventDefault();
         document.onmouseup = null;
         document.onmousemove = null;
 
